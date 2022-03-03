@@ -1,0 +1,11 @@
+[package]
+name = "generator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+kithmonite = { path = "../" }
+clap = { version = "3.1", features = ["derive"] }
+rand = "0.8.5"
+rust_decimal = "1.22"
+csv = "1.1"
