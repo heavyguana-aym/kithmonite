@@ -69,4 +69,4 @@ In order to generate transactions for load testing, the generator library can be
 
 1. Debug the trimming performance
 2. Distributed the serialization accross multiple threads
-3. Add instruments to be alerted to suspicious behavior (log the errors instead of discarding them).
+3. Add instrumentation to be alerted of suspicious behavior (log the errors instead of discarding them).
