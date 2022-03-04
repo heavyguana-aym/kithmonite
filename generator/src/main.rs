@@ -1,12 +1,11 @@
 use clap::Parser;
-use kithmonite::cli::{TransactionRow, TransactionType};
+use kithmonite::cli::{TransactionKind, TransactionRow};
 use rand::prelude::*;
 use rust_decimal::Decimal;
 
 /// Random test transaction history generator. Data correctness is not guaranteed.
-/// This serves as a chaos generator to test how the system handles load and invalid
-/// orders.
-#[derive(Parser, Debug)]
+/// This serves as a chaos generator to optimize system load through benchmarks.
+#[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
     /// Number of rows to generate.
@@ -20,76 +19,72 @@ fn generate_random_transaction<'a>(
     transaction_history: impl Iterator<Item = &'a TransactionRow>,
 ) -> TransactionRow {
     let rng = &mut rand::thread_rng();
-    let random_transaction_type = [
-        TransactionType::Deposit,
-        TransactionType::Withdrawal,
-        TransactionType::Dispute,
-        TransactionType::Resolve,
-        TransactionType::Chargeback,
-    ]
-    .choose(rng)
-    .expect("cannot fail because slice is not empty");
+
+    use TransactionKind::*;
+    let random_transaction_type = [Deposit, Withdrawal, Dispute, Resolve, Chargeback]
+        .choose(rng)
+        .expect("cannot fail because slice is not empty");
 
     match random_transaction_type {
-        TransactionType::Deposit => {
+        Deposit => {
             let transaction_id: u32 = rand::random();
             let deposit_amount = Decimal::new(rand::random::<i64>(), 5).round_dp(4);
 
             TransactionRow {
-                r#type: TransactionType::Deposit,
+                r#type: Deposit,
                 amount: Some(deposit_amount),
                 client: client_id,
                 tx: transaction_id,
             }
         }
-        TransactionType::Withdrawal => {
+        Withdrawal => {
             let transaction_id: u32 = rand::random();
             let withdrawal_amount = Decimal::new(rand::random::<i64>(), 5).round_dp(4);
 
             TransactionRow {
-                r#type: TransactionType::Withdrawal,
+                r#type: Withdrawal,
                 amount: Some(withdrawal_amount),
                 client: client_id,
                 tx: transaction_id,
             }
         }
-        TransactionType::Dispute => {
+        Dispute => {
             let disputed_transaction_id = transaction_history
-                .filter(|tx| matches!(tx.r#type, TransactionType::Deposit))
+                .filter(|tx| matches!(tx.r#type, Deposit))
                 .map(|tx| tx.tx)
                 .choose(rng)
                 .unwrap_or_default();
 
             TransactionRow {
-                r#type: TransactionType::Dispute,
+                r#type: Dispute,
                 amount: None,
                 client: client_id,
                 tx: disputed_transaction_id,
             }
         }
-        TransactionType::Resolve => {
+        Resolve => {
             let disputed_transaction_id = transaction_history
-                .filter(|tx| matches!(tx.r#type, TransactionType::Dispute))
+                .filter(|tx| matches!(tx.r#type, Dispute))
                 .map(|tx| tx.tx)
                 .choose(rng)
                 .unwrap_or_default();
 
             TransactionRow {
-                r#type: TransactionType::Resolve,
+                r#type: Resolve,
                 amount: None,
                 client: client_id,
                 tx: disputed_transaction_id,
             }
         }
-        TransactionType::Chargeback => {
+        Chargeback => {
             let disputed_transaction_id = transaction_history
-                .filter(|tx| matches!(tx.r#type, TransactionType::Chargeback))
+                .filter(|tx| matches!(tx.r#type, Chargeback))
                 .map(|tx| tx.tx)
                 .choose(rng)
                 .unwrap_or_default();
 
             TransactionRow {
-                r#type: TransactionType::Chargeback,
+                r#type: Chargeback,
                 amount: None,
                 client: client_id,
                 tx: disputed_transaction_id,

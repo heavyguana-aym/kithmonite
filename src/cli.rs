@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::account::Account;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum TransactionType {
+pub enum TransactionKind {
     Deposit,
     Withdrawal,
     Dispute,
@@ -13,9 +13,9 @@ pub enum TransactionType {
     Chargeback,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct TransactionRow {
-    pub r#type: TransactionType,
+    pub r#type: TransactionKind,
     pub amount: Option<Decimal>,
     pub client: u16,
     pub tx: u32,
