@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     for account in accounts {
         writer
             .serialize(&account)
-            .expect("unable to serialize record")
+            .context("unable to serialize record")?
     }
 
     Ok(())
